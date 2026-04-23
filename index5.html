@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="mainHtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtSouq.dz | Professional Algerian Art Market</title>
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --petrol-blue: #00334E;
+            --gold: #C5A059;
+            --ivory: #F5F2EB;
+            --text-dark: #2D2D2D;
+            --white: #FFFFFF;
+            --gray: #f4f4f4;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Alexandria', sans-serif; }
+        body { background-color: var(--ivory); color: var(--text-dark); overflow-x: hidden; transition: all 0.3s ease; }
+
+        /* --- Navigation --- */
+        nav {
+            background-color: var(--petrol-blue);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo { font-size: 1.8rem; font-weight: 700; text-decoration: none; }
+        .logo .art { color: var(--gold); }
+        .logo .souq { color: var(--white); }
+
+        .nav-links { display: flex; list-style: none; gap: 1.5rem; }
+        .nav-links a { color: var(--white); text-decoration: none; cursor: pointer; font-size: 0.9rem; font-weight: 400; }
+        .nav-links a:hover { color: var(--gold); }
+
+        .nav-actions { display: flex; gap: 1.2rem; align-items: center; color: var(--white); }
+        .nav-actions i { cursor: pointer; font-size: 1.2rem; position: relative; }
+        .cart-count { position: absolute; top: -8px; right: -8px; background: var(--gold); color: white; font-size: 0.7rem; padding: 2px 5px; border-radius: 50%; }
+
+        /* Language Switcher Small UI */
+        .lang-switch { position: relative; display: inline-block; cursor: pointer; }
+        .lang-dropdown { 
+            display: none; position: absolute; top: 100%; right: 0; 
+            background: var(--white); border-radius: 8px; box-shadow: var(--shadow); 
+            min-width: 100px; z-index: 1001; overflow: hidden;
+        }
+        .lang-switch:hover .lang-dropdown { display: block; }
+        .lang-dropdown button { 
+            width: 100%; border: none; padding: 10px; background: none; 
+            cursor: pointer; font-size: 0.8rem; text-align: center; color: var(--petrol-blue); 
+            border-bottom: 1px solid #eee;
+        }
+        .lang-dropdown button:hover { background: var(--gray); }
+
+        /* --- Hero --- */
+        .hero {
+            height: 50vh;
+            background: linear-gradient(rgba(0,51,78,0.7), rgba(0,51,78,0.7)), 
+                        url('https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover; background-position: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: var(--white);
+            padding: 0 20px;
+        }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .hero p { font-size: 1.2rem; font-weight: 300; }
+
+        /* --- Grid System --- */
+        .container { padding: 3rem 5%; max-width: 1200px; margin: 0 auto; }
+        .art-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .art-card { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: 0.3s; }
+        .art-card:hover { transform: translateY(-5px); }
+        .art-card img { width: 100%; height: 250px; object-fit: cover; }
+        .art-details { padding: 1.2rem; }
+        .art-details h3 { font-size: 1.1rem; margin-bottom: 5px; color: var(--petrol-blue); }
+        .art-details p { font-size: 0.85rem; color: #666; margin-bottom: 8px; }
+        .art-details .school { font-size: 0.75rem; color: var(--gold); font-weight: bold; margin-bottom: 5px; display: block; }
+        .price { color: var(--gold); font-weight: 700; font-size: 1.1rem; }
+
+        /* --- Modals --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: none; justify-content: center;
+            align-items: center; z-index: 2000; padding: 20px; backdrop-filter: blur(8px);
+        }
+        .modal-content {
+            background: var(--white); width: 100%; max-width: 500px; border-radius: 15px;
+            padding: 25px; position: relative; max-height: 90vh; overflow-y: auto;
+        }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: var(--petrol-blue); }
+
+        /* --- Items & Actions --- */
+        .payment-card { border: 2px solid #eee; border-radius: 10px; padding: 15px; margin: 10px 0; cursor: pointer; display: flex; align-items: center; gap: 15px; transition: 0.2s; }
+        .payment-card.active { border-color: var(--gold); background: #fdfaf3; }
+        .btn-action { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--petrol-blue); color: white; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        
+        .profile-avatar { width: 80px; height: 80px; background: var(--gold); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; }
+        .artist-list-item { display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
+
+        .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
+        
+        .gallery-item { position: relative; border-radius: 10px; overflow: hidden; cursor: pointer; height: 180px; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+        .gallery-item .overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,51,78,0.7); display:flex; align-items:center; justify-content:center; opacity:0; transition:0.3s; color:white; font-weight:700; font-size: 0.8rem; text-align: center; padding: 10px; }
+        .gallery-item:hover .overlay { opacity: 1; }
+
+        footer { text-align: center; padding: 2rem; background: var(--petrol-blue); color: white; margin-top: 2rem; }
+
+        /* RTL/LTR Alignment adjustment */
+        [dir="ltr"] .close-modal { right: auto; left: 20px; }
+        [dir="ltr"] h2 { border-left: 4px solid var(--gold); border-right: none !important; padding-left: 15px; padding-right: 0 !important; }
+        [dir="rtl"] h2 { border-right: 4px solid var(--gold); padding-right: 15px; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="#" class="logo"><span class="art">Art</span><span class="souq">Souq</span></a>
+        <ul class="nav-links">
+            <li><a onclick="location.reload()" data-i18n="nav_home">الرئيسية</a></li>
+            <li><a onclick="openModal('galleryModal')" data-i18n="nav_gallery">المعرض</a></li>
+            <li><a onclick="openModal('artistsModal')" data-i18n="nav_artists">الفنانون</a></li>
+            <li><a onclick="openModal('orderModal')" data-i18n="nav_order">طلب خاص</a></li>
+        </ul>
+        <div class="nav-actions">
+            <div class="lang-switch">
+                <i class="fa fa-globe"></i>
+                <div class="lang-dropdown">
+                    <button onclick="setLanguage('ar')">العربية</button>
+                    <button onclick="setLanguage('en')">English</button>
+                    <button onclick="setLanguage('fr')">Français</button>
+                </div>
+            </div>
+            <i class="fa fa-shopping-cart" onclick="openModal('cartModal')"><span class="cart-count" id="cartCount">0</span></i>
+            <i class="fa fa-user-circle" onclick="openModal('profileModal')"></i>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <h1 data-i18n="hero_title">سوق الفن الجزائري</h1>
+        <p data-i18n="hero_sub">نخبة الفنانين وأرقى اللوحات في مكان واحد</p>
+    </header>
+
+    <main class="container">
+        <h2 style="margin-bottom: 1.5rem;" data-i18n="latest_art">أحدث الأعمال الفنية</h2>
+        <div class="art-grid" id="mainGrid"></div>
+    </main>
+
+    <!-- Modal: Gallery -->
+    <div class="modal-overlay" id="galleryModal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close-modal" onclick="closeModal('galleryModal')">&times;</span>
+            <h2 style="margin-bottom:20px;" data-i18n="full_gallery">المعرض الفني الشامل</h2>
+            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:15px;" id="galleryGrid"></div>
+        </div>
+    </div>
+
+    <!-- Modal: Artists -->
+    <div class="modal-overlay" id="artistsModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('artistsModal')">&times;</span>
+            <h2 style="margin-bottom:15px;" data-i18n="nav_artists">الفنانون</h2>
+            <div id="artistsList"></div>
+        </div>
+    </div>
+
+    <!-- Modal: Custom Order -->
+    <div class="modal-overlay" id="orderModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('orderModal')">&times;</span>
+            <h2 data-i18n="nav_order">طلب لوحة خاصة</h2>
+            <div style="margin-top: 20px;">
+                <label style="display:block; margin-bottom:5px; font-size:0.9rem;" data-i18n="order_desc">وصف اللوحة المطلوبة</label>
+                <textarea id="orderText" style="width:100%; height:100px; padding:10px; border-radius:5px; border:1px solid #ddd; margin-bottom:15px;" data-i18n-placeholder="order_placeholder"></textarea>
+                <label style="display:block; margin-bottom:5px; font-size:0.9rem;" data-i18n="budget">الميزانية التقريبية (دج)</label>
+                <input type="number" style="width:100%; padding:10px; border-radius:5px; border:1px solid #ddd; margin-bottom:15px;">
+                <button class="btn-action" onclick="submitOrder()" data-i18n="send_order">إرسال الطلب</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Detail & Checkout -->
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('checkoutModal')">&times;</span>
+            <h2 id="checkTitle">تفاصيل اللوحة</h2>
+            <img id="checkImg" src="" style="width:100%; height:250px; object-fit:cover; border-radius:10px; margin:15px 0;">
+            <div style="display:flex; flex-direction:column; gap:5px; margin-bottom:20px;">
+                <span id="checkSchool" style="color:var(--gold); font-size:0.8rem; font-weight:bold;"></span>
+                <span id="checkArtist" style="font-weight:bold;"></span>
+                <span class="price" id="checkPrice"></span>
+            </div>
+            <p style="font-weight:700; margin-bottom:10px;" data-i18n="choose_pay">اختر طريقة الدفع:</p>
+            <div class="payment-card active" onclick="selectPay(this)">
+                <i class="fa fa-credit-card" style="color:#f39c12"></i>
+                <span data-i18n="pay_dahabia">البطاقة الذهبية (Edahabia)</span>
+            </div>
+            <div class="payment-card" onclick="selectPay(this)">
+                <i class="fa fa-mobile-screen" style="color:#e74c3c"></i>
+                <span data-i18n="pay_baridi">تطبيق بريدي موب (BaridiMob)</span>
+            </div>
+            <button class="btn-action" onclick="addToCart()" data-i18n="btn_add_cart">إضافة للسلة</button>
+            <button class="btn-action" style="background:var(--gold)" onclick="confirmDirectBuy()" data-i18n="btn_buy_now">شراء مباشر الآن</button>
+        </div>
+    </div>
+
+    <!-- Modal: Profile -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('profileModal')">&times;</span>
+            <div style="text-align:center;">
+                <div class="profile-avatar"><i class="fa fa-user"></i></div>
+                <h3 data-i18n="user_name">البار محمد الأمين</h3>
+                <p style="font-size:0.85rem; color:#666;" data-i18n="user_city">ولاية الجلفة</p>
+            </div>
+            <div style="border-top:1px solid #eee; padding-top:15px; margin-top:15px;">
+                <div style="display:flex; align-items:center; gap:10px; padding:12px; cursor:pointer;"><i class="fa fa-box"></i> <span data-i18n="user_orders">طلباتي الفنية</span></div>
+                <div style="display:flex; align-items:center; gap:10px; padding:12px; cursor:pointer;"><i class="fa fa-paint-brush"></i> <span data-i18n="user_paintings">لوحاتي المعروضة</span></div>
+                <div style="display:flex; align-items:center; gap:10px; padding:12px; cursor:pointer; color:red;"><i class="fa fa-sign-out"></i> <span data-i18n="logout">تسجيل الخروج</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Cart -->
+    <div class="modal-overlay" id="cartModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('cartModal')">&times;</span>
+            <h2 data-i18n="cart_title">سلة التسوق</h2>
+            <div id="cartItems" style="margin:20px 0;"></div>
+            <div style="border-top:2px solid #eee; padding-top:15px; display:flex; justify-content:space-between; font-weight:700;">
+                <span data-i18n="total">الإجمالي:</span>
+                <span id="cartTotal">0 دج</span>
+            </div>
+            <button class="btn-action" onclick="processCheckout()" data-i18n="checkout_btn">إتمام عملية الشراء</button>
+        </div>
+    </div>
+
+    <footer>
+        <p data-i18n="footer">&copy; 2026 ArtSouq.dz - جميع الحقوق محفوظة لرواد الفن الجزائري</p>
+    </footer>
+
+    <script>
+        const i18n = {
+            ar: {
+                nav_home: "الرئيسية", nav_gallery: "المعرض", nav_artists: "الفنانون", nav_order: "طلب خاص",
+                hero_title: "سوق الفن الجزائري", hero_sub: "نخبة الفنانين وأرقى اللوحات في مكان واحد",
+                latest_art: "أحدث الأعمال الفنية", full_gallery: "المعرض الفني الشامل",
+                order_desc: "وصف اللوحة المطلوبة", order_placeholder: "مثلاً: أريد لوحة طبيعية لصحراء الجزائر...",
+                budget: "الميزانية التقريبية (دج)", send_order: "إرسال الطلب", choose_pay: "اختر طريقة الدفع:",
+                pay_dahabia: "البطاقة الذهبية (Edahabia)", pay_baridi: "تطبيق بريدي موب (BaridiMob)",
+                btn_add_cart: "إضافة للسلة", btn_buy_now: "شراء مباشر الآن", total: "الإجمالي:",
+                cart_title: "سلة التسوق", checkout_btn: "إتمام عملية الشراء", cart_empty: "السلة فارغة حالياً",
+                user_name: "البار محمد الأمين", user_city: "ولاية الجلفة", user_orders: "طلباتي الفنية",
+                user_paintings: "لوحاتي المعروضة", logout: "تسجيل الخروج", footer: "© 2026 ArtSouq.dz - جميع الحقوق محفوظة لرواد الفن الجزائري",
+                artist_label: "الفنان: ", price_unit: "دج", order_success: "تم إرسال طلبك بنجاح، سيتواصل معك أحد الفنانين قريباً",
+                cart_added: "تمت الإضافة للسلة"
+            },
+            en: {
+                nav_home: "Home", nav_gallery: "Gallery", nav_artists: "Artists", nav_order: "Special Order",
+                hero_title: "Algerian Art Souq", hero_sub: "Elite artists and finest paintings in one place",
+                latest_art: "Latest Artworks", full_gallery: "Full Art Gallery",
+                order_desc: "Describe your request", order_placeholder: "e.g. I want a landscape of the Algerian desert...",
+                budget: "Approximate Budget (DZD)", send_order: "Send Order", choose_pay: "Choose Payment Method:",
+                pay_dahabia: "Edahabia Card", pay_baridi: "BaridiMob App",
+                btn_add_cart: "Add to Cart", btn_buy_now: "Buy Now", total: "Total:",
+                cart_title: "Shopping Cart", checkout_btn: "Checkout Now", cart_empty: "Your cart is empty",
+                user_name: "Mohamed Amine", user_city: "Djelfa Province", user_orders: "My Orders",
+                user_paintings: "My Gallery", logout: "Sign Out", footer: "© 2026 ArtSouq.dz - All Rights Reserved",
+                artist_label: "Artist: ", price_unit: "DZD", order_success: "Request sent! An artist will contact you soon.",
+                cart_added: "Added to cart successfully"
+            },
+            fr: {
+                nav_home: "Accueil", nav_gallery: "Galerie", nav_artists: "Artistes", nav_order: "Commande",
+                hero_title: "ArtSouq Algérie", hero_sub: "L'élite des artistes et les tableaux les plus raffinés",
+                latest_art: "Dernières Œuvres", full_gallery: "Galerie d'Art Complète",
+                order_desc: "Description du tableau", order_placeholder: "ex: Je veux un paysage du désert algérien...",
+                budget: "Budget Approximatif (DZD)", send_order: "Envoyer", choose_pay: "Mode de paiement:",
+                pay_dahabia: "Carte Edahabia", pay_baridi: "Application BaridiMob",
+                btn_add_cart: "Ajouter au panier", btn_buy_now: "Acheter maintenant", total: "Total:",
+                cart_title: "Votre Panier", checkout_btn: "Passer à la caisse", cart_empty: "Le panier est vide",
+                user_name: "Mohamed Amine", user_city: "Wilaya de Djelfa", user_orders: "Mes Commandes",
+                user_paintings: "Ma Galerie", logout: "Déconnexion", footer: "© 2026 ArtSouq.dz - Tous droits réservés",
+                artist_label: "Artiste: ", price_unit: "DZD", order_success: "Demande envoyée! Un artiste vous contactera.",
+                cart_added: "Ajouté au panier"
+            }
+        };
+
+        const artworks = [
+            { id: 1, title: "صباح الهدوء", artist: "نصر الدين دينيه", school: "المدرسة الاستشراقية", price: 120000, img: "https://2img.net/h/i539.photobucket.com/albums/ff360/archialg/algerie/femme%20algerienne/tin_hinan_hoggar.jpg?w=500" },
+            { id: 2, title: "منمنمة جزائرية", artist: "محمد راسم", school: "مدرسة المنمنمات", price: 95000, img: "https://vid.alarbiya.net/images/2022/02/10/53da3e23-6666-46f4-a8ca-8e609cc640d2/53da3e23-6666-46f4-a8ca-8e609cc640d2.jpg?w=500" },
+            { id: 3, title: "رقصة الرمل", artist: "كيحل بشير", school: "المدرسة التجريدية", price: 45000, img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEifM8jnM-N3sjC7qwY6VaiuWvEDyGWyv0_7Jel11lprR1s1uzZHMRfeWwuYGGZaDwC4DCWLk5CG8VKjKF0zP6U5BfFAQPnCHUqKGDuByL72-ceOzuN7n6uaTGbp1NOQ4XqaMBMT7jfPbIk/s1600/180281_188369654625754_2084070500_n.jpg?w=500" },
+            { id: 4, title: "أزقة القصبة", artist: "البار محمد الأمين", school: "المدرسة الواقعية", price: 38000, img: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Casbahalgerie.jpg?w=500" },
+            { id: 5, title: "أطياف الجمال", artist: "محمد علي", school: "المدرسة السريالية", price: 55000, img: "https://cdn.assayahi.dz/ar/wp-content/uploads/2022/08/272259023_1748551535341485_4950606612598556816_n-780x470.jpg?w=500" },
+            { id: 6, title: "صمود الأوراس", artist: "مقواس كمال", school: "المدرسة الانطباعية", price: 42000, img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Monet_Umbrella.JPG/500px-Monet_Umbrella.JPG?w=500" },
+            { id: 7, title: "سجود الامام", artist: "حمدي عدلان", school: "المدرسة التكعيبية", price: 32000, img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjKpmlEM-TqpV6XoRj1K8Cy2jnK0xxgsMDZfxrSpZDcjvvqDJlI71JtxM1pj5rNWD9EvNyK_IWyo8Glr_PgqBTSypPSnHSPKUF5zJ5XU4ticF3BYFYpATRLc35sP6lkqE_rH6zqE4TN3D0/s1600/206044_186369681492418_1611847581_n.jpg?w=500" },
+            { id: 8, title: "اناء الزهور", artist: "البار محمد الأمين", school: "المدرسة التعبيرية", price: 29000, img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Jan_Bruegel_%28I%29_-_Bouquet_of_Flowers_in_a_Ceramic_Vase.jpg/500px-Jan_Bruegel_%28I%29_-_Bouquet_of_Flowers_in_a_Ceramic_Vase.jpg?w=500" }
+        ];
+
+        let cart = [];
+        let currentItem = null;
+        let currentLang = 'ar';
+
+        window.onload = () => {
+            setLanguage('ar');
+        };
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            const html = document.getElementById('mainHtml');
+            html.lang = lang;
+            html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+            // Translate Static Elements
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.innerText = i18n[lang][key];
+            });
+
+            // Translate Placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                el.placeholder = i18n[lang][key];
+            });
+
+            renderGrid();
+            renderGallery();
+            renderArtists();
+            updateCartUI();
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('mainGrid');
+            grid.innerHTML = "";
+            artworks.forEach(art => {
+                const card = document.createElement('div');
+                card.className = 'art-card';
+                card.onclick = () => openCheckout(art);
+                card.innerHTML = `
+                    <img src="${art.img}" alt="${art.title}">
+                    <div class="art-details">
+                        <span class="school">${art.school}</span>
+                        <h3>${art.title}</h3>
+                        <p>${i18n[currentLang].artist_label}${art.artist}</p>
+                        <div class="price">${art.price.toLocaleString()} ${i18n[currentLang].price_unit}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderGallery() {
+            const gallery = document.getElementById('galleryGrid');
+            gallery.innerHTML = "";
+            artworks.forEach(art => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.onclick = () => { closeModal('galleryModal'); openCheckout(art); };
+                item.innerHTML = `
+                    <img src="${art.img}">
+                    <div class="overlay"><span>${art.title}<br>${art.school}</span></div>
+                `;
+                gallery.appendChild(item);
+            });
+        }
+
+        function renderArtists() {
+            const list = document.getElementById('artistsList');
+            const uniqueArtists = [...new Set(artworks.map(a => a.artist))];
+            list.innerHTML = "";
+            uniqueArtists.forEach(name => {
+                const div = document.createElement('div');
+                div.className = 'artist-list-item';
+                div.innerHTML = `
+                    <div style="width:45px; height:45px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold;">${name[0]}</div>
+                    <div style="flex:1;">
+                        <h4 style="font-size:0.95rem;">${name}</h4>
+                        <p style="font-size:0.7rem; color:#888;">Certified Professional Artist</p>
+                    </div>
+                    <i class="fa fa-chevron-${currentLang === 'ar' ? 'left' : 'right'}" style="font-size:0.8rem; color:#ccc;"></i>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function openCheckout(art) {
+            currentItem = art;
+            document.getElementById('checkTitle').innerText = art.title;
+            document.getElementById('checkImg').src = art.img;
+            document.getElementById('checkArtist').innerText = i18n[currentLang].artist_label + art.artist;
+            document.getElementById('checkSchool').innerText = art.school;
+            document.getElementById('checkPrice').innerText = art.price.toLocaleString() + " " + i18n[currentLang].price_unit;
+            openModal('checkoutModal');
+        }
+
+        function selectPay(el) {
+            document.querySelectorAll('.payment-card').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function addToCart() {
+            cart.push(currentItem);
+            updateCartUI();
+            alert(i18n[currentLang].cart_added);
+            closeModal('checkoutModal');
+        }
+
+        function updateCartUI() {
+            const list = document.getElementById('cartItems');
+            const count = document.getElementById('cartCount');
+            const totalLabel = document.getElementById('cartTotal');
+            
+            count.innerText = cart.length;
+            list.innerHTML = "";
+            let total = 0;
+
+            if(cart.length === 0) {
+                list.innerHTML = `<p style="text-align:center; color:#999; padding:20px;">${i18n[currentLang].cart_empty}</p>`;
+            } else {
+                cart.forEach((item, index) => {
+                    total += item.price;
+                    const div = document.createElement('div');
+                    div.className = 'cart-item';
+                    div.innerHTML = `
+                        <div style="font-size:0.9rem;">
+                            <strong>${item.title}</strong><br>
+                            <span style="font-size:0.75rem; color:#888;">${item.artist}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="color:var(--gold); font-size:0.9rem;">${item.price.toLocaleString()} ${i18n[currentLang].price_unit}</span>
+                            <i class="fa fa-trash" onclick="removeFromCart(${index})" style="color:red; cursor:pointer;"></i>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            }
+            totalLabel.innerText = total.toLocaleString() + " " + i18n[currentLang].price_unit;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function submitOrder() {
+            alert(i18n[currentLang].order_success);
+            closeModal('orderModal');
+        }
+
+        function confirmDirectBuy() {
+            alert("Redirecting to Secure Payment Gateway for " + currentItem.title);
+            closeModal('checkoutModal');
+        }
+
+        function processCheckout() {
+            if(cart.length > 0) {
+                alert("Redirecting to multi-payment processing...");
+            } else {
+                alert(i18n[currentLang].cart_empty);
+            }
+        }
+
+        window.onclick = function(e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+    </script>
+</body>
+</html>
